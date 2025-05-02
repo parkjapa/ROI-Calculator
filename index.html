@@ -3,142 +3,298 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JAPA Smart Parking ROI Calculator</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+  <title>JAPA ROI Calculator</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #cd5e14;
       --text: #333;
-      --bg: #fff;
-      --bg-light: #f5f5f7;
+      --text-light: #666;
+      --bg-alt: #fafafb;
       --border: #e0e0e0;
-      --accent-shade: rgba(205,94,20,0.05);
-      --input-shade: rgba(205,94,20,0.1);
+      --green: #10b981;
     }
-    *, *::before, *::after { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg-light); color: var(--text); font-family: 'Roboto', sans-serif; }
-    .container { max-width: 920px; margin: 0 auto; padding: 60px 20px; }
-    header { text-align: center; margin-bottom: 60px; }
-    header h1 { font-size: 3rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    header h1 span { color: var(--primary); }
-    header p { font-size: 1rem; opacity: 0.8; margin-bottom: 40px; }
-    .card { background: var(--bg); border-radius: 12px; padding: 36px; margin-bottom: 50px; box-shadow: 0 6px 16px rgba(0,0,0,0.04); border: 1px solid var(--border); }
-    .card:nth-child(odd) { background: var(--accent-shade); }
-    .card h2 { font-size: 1.75rem; color: var(--primary); margin-bottom: 16px; text-align: center; }
-    .card p.description { font-size: 1rem; text-align: center; margin: 0 auto 32px; opacity: 0.8; max-width: 700px; }
-    .input-group { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 30px; }
-    .input-group label { flex: 1 1 140px; background: var(--input-shade); border-radius: 8px; padding: 10px; text-align: center; font-size: 0.95rem; }
-    .input-group input { margin-top: 8px; width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
-    .btn { display: block; background: var(--primary); color: #fff; padding: 14px 40px; margin: 0 auto 32px; border-radius: 8px; font-size: 1.1rem; border: none; cursor: pointer; transition: background 0.2s, transform 0.2s; }
-    .btn:hover { background: #b24b10; transform: translateY(-2px); }
-    .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 24px; margin-top: 24px; }
-    .result-card { position: relative; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 28px; text-align: center; }
-    .result-card:nth-child(odd)::before { content: ''; position: absolute; top: -20px; left: -20px; width: 100px; height: 100px; background: var(--accent-shade); border-radius: 50%; }
-    .result-card h3 { font-size: 1.05rem; margin-bottom: 12px; font-weight: 500; color: var(--text); }
-    .result-card p { font-size: 2rem; margin: 0; font-weight: 700; color: var(--primary); animation: fadeIn 0.4s ease-in; }
-    .message { font-size: 0.85rem; text-align: center; color: #666; margin-top: 12px; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
-    footer { text-align: center; margin-top: 60px; font-size: 0.9rem; }
-    footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg-alt);
+      color: var(--text);
+      padding: 40px 20px;
+    }
+    .title-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .title-section h1 {
+      font-family: 'Roboto', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .title-section h1 .japa {
+      color: var(--primary);
+    }
+    .title-section p {
+      font-size: 1.15rem;
+      color: var(--text-light);
+      margin-top: 8px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .panel {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .panel h2 {
+      font-family: 'Roboto', sans-serif;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+    .panel p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+    .form label {
+      display: block;
+      margin: 12px 0 4px;
+      font-size: 0.95rem;
+    }
+    .form select,
+    .form input {
+      width: 100%;
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .inputs > div { display: none; }
+    .inputs > .active { display: block; }
+    .btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn:hover { background: #b24b10; }
+    /* CTA button distinct styling */
+    .cta-btn {
+      margin-top: 20px;
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      border-radius: 4px;
+      padding: 10px 16px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cta-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn:hover { background: #b24b10; }
+    .savings-list { list-style: none; padding: 0; }
+    .savings-list li {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+      font-size: 0.95rem;
+    }
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+    .roi {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 16px 0;
+    }
+    .arrow { color: var(--green); margin-right: 4px; }
+    .message {
+      font-size: 0.9rem;
+      text-align: center;
+      color: var(--text-light);
+      margin-top: 12px;
+    }
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 40px;
+    }
+    @media (max-width:700px) {
+      .container { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><span>JAPA</span> ROI Calculator</h1>
-      <p>Real-time insights to maximize your parking revenue and efficiency</p>
-    </header>
-
-    <div class="card" id="utilization-roi">
-      <h2>Utilization Impact</h2>
-      <p class="description">Calculate how increasing occupancy improves turnover and drives immediate revenue growth by optimizing every available space.</p>
-      <div class="input-group">
-        <label>Baseline %<br><input id="baselineOcc" type="number" value="65" min="0" max="100"></label>
-        <label>New %<br><input id="newOcc" type="number" value="80" min="0" max="100"></label>
-        <label>Spaces<br><input id="spaces" type="number" value="500" min="0"></label>
-      </div>
-      <button class="btn" onclick="calcUtil()">Compute Utilization ROI</button>
-      <div class="results">
-        <div class="result-card">
-          <h3>Daily Revenue ↑</h3>
-          <p id="incDaily">$0</p>
-        </div>
-        <div class="result-card">
-          <h3>New Daily Total</h3>
-          <p id="newDaily">$0</p>
-        </div>
-        <div class="result-card">
-          <h3>Annual Revenue ↑</h3>
-          <p id="incAnnual">$0</p>
-        </div>
-      </div>
-      <p id="utilMsg" class="message"></p>
-    </div>
-
-    <div class="card" id="enforcement-violation">
-      <h2>Enforcement Violation Impact</h2>
-      <p class="description">See the impact of automating violation capture to increase citations by 35%, reducing manual enforcement and boosting citation revenue.</p>
-      <div class="input-group">
-        <label>Avg Overstays/day<br><input id="baseOver" type="number" value="10" min="0"></label>
-        <label>Fee $<br><input id="feeOver" type="number" value="50" min="0"></label>
-      </div>
-      <button class="btn" onclick="calcViol()">Compute Violation ROI</button>
-      <div class="results">
-        <div class="result-card">
-          <h3>Extra Citations</h3>
-          <p id="iO">0</p>
-        </div>
-        <div class="result-card">
-          <h3>Daily Revenue ↑</h3>
-          <p id="iRD">$0</p>
-        </div>
-        <div class="result-card">
-          <h3>Annual Revenue ↑</h3>
-          <p id="iRY">$0</p>
-        </div>
-      </div>
-      <p id="violMsg" class="message"></p>
-    </div>
-
-    <div class="card" id="about-jaja">
-      <h2>About JAPA</h2>
-      <p class="description">JAPA transforms standard parking operations with real-time space monitoring, analytics-driven enforcement automation, and flexible pricing models to create a smarter, more profitable parking experience.</p>
-    </div>
-
-    <footer>
-      <p>Questions? <a href="mailto:contact@japa.one">contact@japa.one</a> | 877-PRK-JAPA<br>www.parkjaja.com</p>
-    </footer>
+  <div class="title-section">
+    <h1><span class="japa">JAPA</span> ROI Calculator</h1>
+    <p>Discover how JAPA’s smart parking solutions transform your operations into tangible savings. Select a scenario, input your baseline metrics, and see live ROI projections.</p>
   </div>
-
+  <div class="container">
+    <div class="panel form">
+      <h2>Customer Parking Data</h2>
+      <p id="scenario-desc">Choose a scenario</p>
+      <label>Scenario</label>
+      <select id="scenario">
+        <option value="util">Increased Utilization</option>
+        <option value="eff">Enforcement Efficiency</option>
+        <option value="lab">Reduced Enforcement Labor</option>
+        <option value="comp">Fewer Complaints</option>
+      </select>
+      <div class="inputs">
+        <div id="util" class="active">
+          <label>Baseline Occupancy %</label>
+          <input id="uBasePct" type="number" value="65" min="0" max="100">
+          <label>Total Spaces</label>
+          <input id="uSpaces" type="number" value="500" min="0">
+        </div>
+        <div id="eff">
+          <label>Tickets/day</label>
+          <input id="eBaseTix" type="number" value="15" min="0">
+          <label>Fine $</label>
+          <input id="eFine" type="number" value="35" min="0">
+        </div>
+        <div id="lab">
+          <label>Officers/day</label>
+          <input id="lOfficers" type="number" value="5" min="0">
+          <label>Cost/Shift $</label>
+          <input id="lCost" type="number" value="150" min="0">
+        </div>
+        <div id="comp">
+          <label>Complaints/day</label>
+          <input id="cBaseComp" type="number" value="20" min="0">
+          <label>Cost/Complaint $</label>
+          <input id="cCost" type="number" value="12" min="0">
+        </div>
+      </div>
+      <button class="btn" id="compute">Calculate ROI</button>
+    </div>
+    <div class="panel output">
+      <h2>Savings Results</h2>
+      <ul class="savings-list">
+        <li>Baseline Daily <span id="baseDaily"></span></li>
+        <li>New Daily <span id="newDaily"></span></li>
+        <li>Daily Impact <span id="gainDaily"></span></li>
+      </ul>
+      <div class="divider"></div>
+      <ul class="savings-list">
+        <li>Baseline Annual <span id="baseAnnual"></span></li>
+        <li>New Annual <span id="newAnnual"></span></li>
+        <li>Annual Impact <span id="gainAnnual"></span></li>
+      </ul>
+      <div class="divider"></div>
+      <div class="roi">ROI <span id="gainAnnual"></span></div>
+      <p class="message" id="message"></p>
+    </div>
+  </div>
+    <div style="text-align:center; margin-top:32px;">
+    <p style="font-size:1rem; color: var(--text); max-width:600px; margin:0 auto 12px;">Ready to see how JAPA can drive your parking ROI? Book a meeting for a personalized analysis.</p>
+    <a href="https://meetings.hubspot.com/mathewmagno" class="cta-btn" style="max-width:300px; display:inline-block;">Book a Meeting</a>
+    <p style="font-size:0.9rem; color: var(--text-light); margin-top:12px;">We look forward to helping you maximize your parking efficiency!</p>
+  </div>
+  <footer>Contact us: contact@japa.one | 877-PRK-JAPA | www.parkjaja.com</footer>
   <script>
-    const utilPhrases = ["Wow, that's impressive!", "Awesome ROI!", "Great job optimizing!", "You're crushing it!", "Revenue skyrocketing!"];
-    const violPhrases = ["Nice catch!", "Fantastic boost!", "Violation ROI rocks!", "Ticket revenue up!", "Enforcement excels!"];
-    function randomPhrase(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-    function calcUtil() {
-      const b = parseFloat(document.getElementById('baselineOcc').value) || 0;
-      const n = parseFloat(document.getElementById('newOcc').value) || 0;
-      const s = parseFloat(document.getElementById('spaces').value) || 0;
-      const r = 15, d = 250;
-      const bd = s * (b/100) * r;
-      const nd = s * (n/100) * r;
-      const inc = nd - bd;
-      document.getElementById('incDaily').textContent = `$${nd.toFixed(0)}`;
-      document.getElementById('newDaily').textContent = `$${inc.toFixed(0)}`;
-      document.getElementById('incAnnual').textContent = `$${(inc * d).toFixed(0)}`;
-      document.getElementById('utilMsg').textContent = randomPhrase(utilPhrases);
+    const days = 250;
+    const info = {
+      util: 'Increasing utilization fills empty spots and boosts revenue.',
+      eff: 'Automate enforcement to catch 35% more violations.',
+      lab: 'Optimize staffing by cutting one shift per day.',
+      comp: 'Reduce complaints by automating alerts.'
+    };
+    const messages = {
+      util: ['Maximize turnover!', 'Revenue on the rise!', 'Full lots, full profit!'],
+      eff: ['Citations soaring!', 'More tickets, no extra work!'],
+      lab: ['Lean shifts, big savings!', 'Labor costs down!'],
+      comp: ['Complaints down, smiles up!', 'Happy parkers, happy ROI!']
+    };
+    const scenario = document.getElementById('scenario');
+    const inputs = document.querySelectorAll('.inputs > div');
+    const desc = document.getElementById('scenario-desc');
+    scenario.addEventListener('change', () => {
+      inputs.forEach(d => d.classList.remove('active'));
+      document.getElementById(scenario.value).classList.add('active');
+      desc.textContent = info[scenario.value];
+    });
+    function format(v) { return `$${v.toLocaleString()}`; }
+    function animate(el, start, end, arrow = false) {
+      const range = end - start;
+      let t0 = null;
+      function step(ts) {
+        if (!t0) t0 = ts;
+        const p = Math.min((ts - t0) / 600, 1);
+        const val = Math.floor(start + range * p);
+        el.innerHTML = arrow && val > 0 ? `<span class='arrow'>▲</span>${format(val)}` : format(val);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     }
-    function calcViol() {
-      const bo = parseFloat(document.getElementById('baseOver').value) || 0;
-      const f = parseFloat(document.getElementById('feeOver').value) || 0;
-      const d = 250;
-      const inc = bo * 0.35;
-      const rd = inc * f;
-      document.getElementById('iO').textContent = inc.toFixed(0);
-      document.getElementById('iRD').textContent = `$${rd.toFixed(0)}`;
-      document.getElementById('iRY').textContent = `$${(rd * d).toFixed(0)}`;
-      document.getElementById('violMsg').textContent = randomPhrase(violPhrases);
-    }
-    window.addEventListener('load', () => { calcUtil(); calcViol(); });
+    document.getElementById('compute').addEventListener('click', () => {
+      let bd = 0, nd = 0, gd = 0;
+      switch (scenario.value) {
+        case 'util': {
+          const b = +uBasePct.value, s = +uSpaces.value;
+          bd = s * (b / 100) * 15;
+          nd = bd * 1.5;
+          gd = nd - bd;
+          break;
+        }
+        case 'eff': {
+          const b = +eBaseTix.value, f = +eFine.value;
+          bd = b * f;
+          nd = (b * 1.35) * f;
+          gd = nd - bd;
+          break;
+        }
+        case 'lab': {
+          const r = +lOfficers.value, c = +lCost.value;
+          bd = r * c;
+          nd = (r - 1) * c;
+          gd = bd - nd;
+          break;
+        }
+        case 'comp': {
+          const b = +cBaseComp.value, c = +cCost.value;
+          bd = b * c;
+          nd = (b - 10) * c;
+          gd = bd - nd;
+          break;
+        }
+      }
+      animate(document.getElementById('baseDaily'), 0, bd);
+      animate(document.getElementById('newDaily'), 0, nd, true);
+      animate(document.getElementById('gainDaily'), 0, gd, true);
+      animate(document.getElementById('baseAnnual'), 0, bd * days);
+      animate(document.getElementById('newAnnual'), 0, nd * days, true);
+      animate(document.getElementById('gainAnnual'), 0, gd * days, true);
+      const msgs = messages[scenario.value];
+      document.getElementById('message').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    });
+    window.addEventListener('load', () => { desc.textContent = 'Choose a scenario'; });
   </script>
 </body>
 </html>
